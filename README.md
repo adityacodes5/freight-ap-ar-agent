@@ -119,9 +119,9 @@ The hard rule is **never move money autonomously.** Discrepancies are flagged an
 
 ## Provenance
 
-A real, evolving product — not a weekend prototype. The chart below is the actual commit + deployment history from the private production repository:
+A real, evolving product — not a weekend prototype. Below is the **actual GitHub contribution history** from the private production repository (only the repository name is redacted):
 
-![Development activity](docs/screenshots/activity.png)
+![Development activity](docs/screenshots/github-insights.png)
 
 - **89 commits and 104 deployments** across roughly six weeks of intensive, near-daily iteration (Jun–Jul 2026).
 - Runs **in production today**: a scheduled daily cron processes the inbox and emails a digest; a small team relies on the dashboard.
