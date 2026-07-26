@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"import ast, sys; files=['agent.py','config.py','main.py','state.py','setup_zoho.py','tools/zoho_mail.py','tools/sheets.py','tools/parser.py']; [ast.parse\\(open\\(f\\).read\\(\\)\\) or print\\(f'OK: {f}'\\) for f in files]; print\\('All files parse cleanly'\\)\")"
+    ]
+  }
+}

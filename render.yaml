@@ -1,0 +1,95 @@
+services:
+  - type: web
+    name: logistics-api
+    runtime: python
+    autoDeploy: true          # redeploy on every push to the linked branch
+    buildCommand: pip install -r api/requirements.txt
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ZOHO_CLIENT_ID
+        sync: false
+      - key: ZOHO_CLIENT_SECRET
+        sync: false
+      - key: ZOHO_REFRESH_TOKEN
+        sync: false
+      - key: ZOHO_ACCOUNT_ID
+        sync: false
+      - key: ZOHO_MAIL_BASE_URL
+        value: https://mail.zoho.com/api
+      - key: ZOHO_AUTH_URL
+        value: https://accounts.zoho.com/oauth/v2/token
+      - key: ZOHO_INBOX_FOLDER_ID
+        sync: false
+      - key: GOOGLE_SHEET_ID
+        sync: false
+      - key: GOOGLE_SERVICE_ACCOUNT_B64
+        sync: false
+      - key: ACCOUNTS_SHEET_NAME
+        value: Accounts
+      # Gates outbound forwarding of carrier invoices to dispatch. The send itself
+      # now uses the OAuth REST API, but this stays the "mailbox is configured to
+      # send" signal — forwarding is SKIPPED unless it is set.
+      - key: ZOHO_SMTP_PASSWORD
+        sync: false
+      - key: ALLOWED_ORIGIN
+        sync: false
+      # Dashboard auth — Google sign-in via Supabase, locked to these emails.
+      - key: ALLOWED_EMAIL
+        value: owner@demologistics.com,ap.clerk@demologistics.com
+      - key: SUPABASE_URL
+        value: https://yourproject.supabase.co
+      - key: SUPABASE_ANON_KEY
+        value: sb_publishable_REPLACE_ME
+      # Supabase Postgres — durable agent state (cache / processed / forward /
+      # forwarded-loads / run reports / review queue). Without it the agent falls
+      # back to ephemeral JSON files. Use the Supabase "Connection pooling"
+      # string (port 6543, transaction mode).
+      - key: DATABASE_URL
+        sync: false
+
+  # Daily job: SALES→ACCOUNTS sync, then last-40-email invoice check for both
+  # shipper + carrier (verified carrier invoices forwarded to dispatch).
+  # No time gate — run_scheduled.py runs whenever invoked, so this fires ONCE a
+  # day. 22:00 UTC ≈ 6pm Toronto (EDT) / 5pm (EST); the ±1h DST drift is harmless.
+  # A manual "Trigger Run" in Render also runs the full job, any time.
+  # NOTE: set these env vars to the SAME values as the web service above
+  # (DATABASE_URL is required here so scheduled results show up in the dashboard).
+  - type: cron
+    name: logistics-scheduled
+    runtime: python
+    autoDeploy: true          # pick up new code (e.g. the digest redesign) on every push
+    schedule: "0 22 * * *"
+    buildCommand: pip install -r api/requirements.txt
+    startCommand: python run_scheduled.py
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ZOHO_CLIENT_ID
+        sync: false
+      - key: ZOHO_CLIENT_SECRET
+        sync: false
+      - key: ZOHO_REFRESH_TOKEN
+        sync: false
+      - key: ZOHO_ACCOUNT_ID
+        sync: false
+      - key: ZOHO_MAIL_BASE_URL
+        value: https://mail.zoho.com/api
+      - key: ZOHO_AUTH_URL
+        value: https://accounts.zoho.com/oauth/v2/token
+      - key: ZOHO_INBOX_FOLDER_ID
+        sync: false
+      - key: GOOGLE_SHEET_ID
+        sync: false
+      - key: GOOGLE_SERVICE_ACCOUNT_B64
+        sync: false
+      - key: ACCOUNTS_SHEET_NAME
+        value: Accounts
+      # Required to forward verified carrier invoices to dispatch (see note on the
+      # web service above). Without it the daily run still syncs + processes +
+      # writes the sheet, but never forwards.
+      - key: ZOHO_SMTP_PASSWORD
+        sync: false
+      - key: DATABASE_URL
+        sync: false
