@@ -119,11 +119,14 @@ The hard rule is **never move money autonomously.** Discrepancies are flagged an
 
 ## Provenance
 
-A real, evolving product — not a weekend prototype:
+A real, evolving product — not a weekend prototype. The chart below is the actual commit + deployment history from the private production repository:
 
-- Developed over **~3 months** of near-daily iteration (Apr–Jul 2026), across **~90 commits** and **100+ deployments**.
+![Development activity](docs/screenshots/activity.png)
+
+- **89 commits and 104 deployments** across roughly six weeks of intensive, near-daily iteration (Jun–Jul 2026).
 - Runs **in production today**: a scheduled daily cron processes the inbox and emails a digest; a small team relies on the dashboard.
 - **155 passing tests** cover the extraction, classification, and matching logic.
+- Deployed for **two separate brokerages** from the same codebase.
 
 ## Repository layout
 
